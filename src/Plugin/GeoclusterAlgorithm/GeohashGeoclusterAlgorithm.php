@@ -24,12 +24,12 @@ abstract class GeohashGeoclusterAlgorithm extends GeoclusterAlgorithmBase {
   function post_execute() {
     $moduleHandler = \Drupal::service('module_handler');
     if ($moduleHandler->moduleExists('devel')){
-      dd(timer_read("geocluster") . "ms: items from database: " . count($this->values));
+      // dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: items from database: " . count($this->values));
     }
     geophp_load();
     $results_by_geohash = $this->preClusterByGeohash();
     if ($moduleHandler->moduleExists('devel')){
-      dd(timer_read("geocluster") . "ms: pre-clustered by geohash: " . count($this->values));
+      // dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: pre-clustered by geohash: " . count($this->values));
     }
 
     $this->clusterByNeighborCheck($results_by_geohash);

@@ -18,6 +18,7 @@
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
   "require": {
-    "geofield/geofield": "^1.6"
+    "geofield/geofield": "^1.6",
+    "geophp/geophp": "^1.0",
   }
 }

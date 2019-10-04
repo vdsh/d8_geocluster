@@ -16,7 +16,6 @@ function geocluster_views_data_alter(&$data) {
   $field_type = 'geofield';
   $field_map = \Drupal::service('entity_field.manager')->getFieldMapByFieldType($field_type);
   
- // var_dump($field_map);exit();
   foreach ($field_map as $entity_type_id => $fields) {
     foreach ($fields as $field_name => $field)
     {

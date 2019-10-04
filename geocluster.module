@@ -5,7 +5,7 @@
  * Contains the geocluster.module.
  */
  
- use Drupal\geocluster\GeoclusterConfig;
+use Drupal\geocluster\GeoclusterConfig;
 
 /**
  * Geohash length

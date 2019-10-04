@@ -118,15 +118,15 @@ abstract class GeoclusterAlgorithmBase extends PluginBase implements GeoclusterA
   function after_construct() {
     $moduleHandler = \Drupal::service('module_handler');
     if ($moduleHandler->moduleExists('devel')){
-      timer_start("geocluster");
+      \Drupal\Component\Utility\Timer::start("geocluster");
       $debug =
         "zoom: " . $this->zoom_level .
           " , resolution: " . $this->resolution .
           " , distance: " . $this->cluster_distance .
           " , geohash_length: " . $this->geohash_length;
-      dd("");
-      dd(get_class($this));
-      dd(timer_read("geocluster") . "ms: setup: " . $debug);
+      // dd("");
+      // dd(get_class($this));
+      //dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: setup: " . $debug);
     }
   }
 
@@ -139,20 +139,20 @@ abstract class GeoclusterAlgorithmBase extends PluginBase implements GeoclusterA
 
     $moduleHandler = \Drupal::service('module_handler');
     if ($moduleHandler->moduleExists('devel')){
-      $query =  Database::getConnection()->prefixTables(vsprintf($view->build_info['query'], $view->build_info['query_args']));
-      $replacements = module_invoke_all('views_query_substitutions', $view);
-      $query = str_replace(array_keys($replacements), $replacements, $query);
+      $query =  \Drupal\Core\Database\Database::getConnection()->prefixTables(vsprintf($view->build_info['query'], $view->build_info['query_args']));
+      // $replacements = module_invoke_all('views_query_substitutions', $view);
+      // $query = str_replace(array_keys($replacements), $replacements, $query);
       // dd($query);
-      dd(timer_read("geocluster") . "ms: started clustering");
+      //dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: started clustering");
     }
   }
 
   function after_post_execute() {
     $moduleHandler = \Drupal::service('module_handler');
     if ($moduleHandler->moduleExists('devel')){
-      dd(timer_read("geocluster") . "ms: merged & finalized clusters: " . count($this->values));
-      dd(timer_read("geocluster") . "ms: total items within clusters: " . $this->total_items);
-      timer_stop("geocluster");
+      //dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: merged & finalized clusters: " . count($this->values));
+      //dd(\Drupal\Component\Utility\Timer::read("geocluster") . "ms: total items within clusters: " . $this->total_items);
+      \Drupal\Component\Utility\Timer::stop("geocluster");
     }
   }
 

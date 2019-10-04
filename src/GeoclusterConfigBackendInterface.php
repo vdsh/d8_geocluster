@@ -19,6 +19,12 @@ interface GeoclusterConfigBackendInterface {
   public function set_option($option, $value);
 
   /**
+   * Returns the view that the configuration is attached to.
+   * @return View
+   */
+  public function get_view();
+  
+  /**
    * Returns the display of the configuration.
    * @return views_plugin_display
    */

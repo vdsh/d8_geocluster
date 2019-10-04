@@ -122,7 +122,8 @@ class GeoclusterViewsDisplayExtender extends DisplayExtenderPluginBase implement
    * Returns a display option value.
    */
   public function get_option($option) {
-    return $this->options[$option];
+   if (isset($this->options[$option])) return $this->options[$option];
+   return null;
   }
 
   /**
