@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Contains the geocluster.module.
+ */
+ 
+ use Drupal\geocluster\GeoclusterConfig;
+
+/**
+ * Geohash length
+ */
+define('GEOCLUSTER_GEOHASH_LENGTH', 12);
+
+define('GEOCLUSTER_ALGORITHM_OPTION', 'geocluster_algorithm');
+
+/**
+ * Implements hook_field_info_alter().
+ * Overrides geofield class to handle the schema
+ */
+function geocluster_field_info_alter(&$info) {
+
+  
+   if (isset($info['geofield'])) {
+    $info['geofield']['class'] = \Drupal\geocluster\Plugin\Field\FieldType\GeoclusterItem::class;
+   // $info['geofield']['provider'] = 'geocluster';
+  }
+}
+
+/**
+ * Initializes a geocluster config with a provided backend.
+ *
+ * @param $config_backend GeoclusterConfigBackendInterface
+ * @return GeoclusterConfig
+ */
+function geocluster_init_config($config_backend) {
+  $config = new GeoclusterConfig($config_backend);
+  return $config;
+}
+
+/**
+ * Initializes the geocluster algorithm.
+ *
+ * @param $config_backend GeoclusterConfigBackendInterface
+ * @return GeoclusterAlgorithm
+ */
+function geocluster_init_algorithm($config_backend) {
+  $view = $config_backend->get_view();
+  
+  // Get geocluster options.
+  $geocluster_options = $config_backend->get_option('geocluster_options');
+  $cluster_distance = $geocluster_options['cluster_distance'];
+  $field_name = $geocluster_options['cluster_field'];
+  
+  if (empty($view->field[$field_name])) {
+    return;
+  }
+  $cluster_field = $view->field[$field_name];
+
+  // Default zoom.
+  $zoom = 1;
+
+  // Add customizations based on style plugin.
+  // @todo: make this a separate function or hook
+  /* TODO: Port to D8
+  $style_plugin_name = $config_backend->get_option('style_plugin');
+  $view->init_style();
+  switch ($style_plugin_name) {
+    case 'leaflet':
+      $map = $view->style_plugin->options['map'];
+      $info = leaflet_map_get_info($map);
+      $zoom = $info['settings']['zoom'];
+      break;
+
+    case 'views_geojson':
+    case 'views_geojson_feed':
+      break;
+
+    case 'geofield_map':
+      $style_options = $view->display_handler->display->display_options['style_options'];
+      $zoom = $style_options['geofield_map_zoom'];
+  }
+  */
+  // Check if there's the zoom parameter and if a override is allowed.
+  if (isset($_GET['zoom']) && (!isset($geocluster_options['advanced']['accept_parameter']['cluster_distance']) || !empty($geocluster_options['advanced']['accept_parameter']['cluster_distance']))) {
+    $zoom = (float) $_GET['zoom'];
+  }
+  // Check if distances per zoom level are configured. Still allows override by
+  // parameter.
+  if (!empty($geocluster_options['advanced']['cluster_distance_per_zoom_level']) && is_array($geocluster_options['advanced']['cluster_distance_per_zoom_level']) && isset($geocluster_options['advanced']['cluster_distance_per_zoom_level'][$zoom])) {
+    $cluster_distance = $geocluster_options['advanced']['cluster_distance_per_zoom_level'][$zoom];
+  }
+  // Check if there's the cluster_distance parameter and if a override is
+  // allowed.
+  if (isset($_GET['cluster_distance']) && (!isset($geocluster_options['advanced']['accept_parameter']['cluster_distance']) || !empty($geocluster_options['advanced']['accept_parameter']['cluster_distance']))) {
+    $cluster_distance = (float) $_GET['cluster_distance'];
+  }
+
+  // Dynamically instantiate selected algorithm.
+  $algorithm = $geocluster_options['algorithm']; 
+  
+  $geocluster_algorithm_manager = \Drupal::service('plugin.manager.geocluster_algorithm');
+  
+  $algorithm_class = $geocluster_algorithm_manager->createInstance($algorithm, array('config' => $config_backend, 'cluster_distance' => $cluster_distance, 'zoom' => $zoom, 'cluster_field' =>  $cluster_field));
+  $config_backend->set_option(GEOCLUSTER_ALGORITHM_OPTION, $algorithm_class);
+  
+  return $algorithm_class;  
+}
+
+/**
+ * Retrieves the geocluster algorithm from a given view.
+ *
+ * @param $view view
+ * @return GeoclusterAlgorithm
+ */
+function geocluster_get_algorithm($view) {
+  $extenders = $view->display_handler->getExtenders();
+  
+  if (isset($extenders['geocluster_views_display_extender'])) {
+    return $extenders['geocluster_views_display_extender']->get_option(GEOCLUSTER_ALGORITHM_OPTION);
+  }
+}
+
+/**
+ * Invokes clustering post execution phase after the views query has been executed.
+ *
+ * Implements hook_views_post_execute().
+ */
+function geocluster_views_post_execute(\Drupal\views\ViewExecutable $view) {
+  if ($algorithm = geocluster_get_algorithm($view)) {
+    $algorithm->before_post_execute();
+    $algorithm->post_execute();
+    $algorithm->after_post_execute();
+  };
+}

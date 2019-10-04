@@ -1,0 +1,9 @@
+name: Geocluster
+description: Server-side geo clustering for mapping/geofield.
+package: Mapping
+type: module
+core: 8.x
+
+dependencies:
+  - geofield:geofield
+  - geophp:geophp

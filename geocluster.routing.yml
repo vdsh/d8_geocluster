@@ -1,0 +1,7 @@
+geocluster.content:
+  path: '/hello'
+  defaults:
+    _controller: '\Drupal\geocluster\Controller\DebugController::content'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'
