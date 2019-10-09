@@ -78,7 +78,7 @@ abstract class GeoclusterAlgorithmBase extends PluginBase implements GeoclusterA
     // Check if cluster distance is negative, if so disable clustering.
     $this->skipClustering($configuration['cluster_distance'] < 0);
     $this->config = $configuration['config'];
-    $this->field_handler = $configuration['field_handler'];
+    $this->field_handler = $configuration['cluster_field'];
     $this->cluster_distance = $configuration['cluster_distance'];
     $this->zoom_level = $configuration['zoom'];
     $resolutions = \Drupal\geocluster\Utility\GeoclusterHelper::resolutions();

@@ -4,6 +4,8 @@ namespace Drupal\geocluster\Plugin\GeoclusterAlgorithm;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\geocluster\Plugin\GeoclusterAlgorithmBase;
+use Drupal\geocluster\Utility\GeohashHelper;
+use Drupal\geocluster\Utility\GeoclusterHelper;
 
 /**
  * Abstract definition of a Geohash algorithm.
@@ -98,7 +100,8 @@ abstract class GeohashGeoclusterAlgorithm extends GeoclusterAlgorithmBase {
   /*** ALGORITHM HELPERS ***/
 
   protected function initCluster(&$value) {
-    $value->geocluster_geometry = new Point($value->geocluster_lon, $value->geocluster_lat);
+    $point = \Drupal::service('geofield.wkt_generator')->wktBuildPoint(array($value->geocluster_lon, $value->geocluster_lat));
+    $value->geocluster_geometry = \Drupal::service('geofield.geophp')->load($point);
     $value->clustered = TRUE;
     return $value->geocluster_count;
   }

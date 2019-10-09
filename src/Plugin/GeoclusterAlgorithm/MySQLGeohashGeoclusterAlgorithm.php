@@ -31,7 +31,7 @@ class MySQLGeohashGeoclusterAlgorithm extends GeohashGeoclusterAlgorithm {
     if($this->config->get_option('group_by')) {
       $view = $this->config->get_view();
       foreach ($view->field as $field_key => $field) {       
-        if (isset($field->options) && $field->options['type'] == 'geofield_default') { 
+        if (isset($field->options) && isset($field->options['type']) && $field->options['type'] == 'geofield_default') { 
           // Set the group column to the appropriate geocluster index level.
           $group_column = 'geocluster_index_' . $this->getGeohashLength();
           $field->options['group_column'] = $group_column;

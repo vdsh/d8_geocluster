@@ -7,6 +7,7 @@ namespace Drupal\geocluster\Utility;
  *
  * @ingroup utility
  */
+ 
 class GeoclusterHelper {
 
   /**
@@ -151,7 +152,8 @@ class GeoclusterHelper {
     }
     $lat = $lat / $totalFactor;
     $lon = $lon / $totalFactor;
-    $center = new Point($lon, $lat);
+    $point = \Drupal::service('geofield.wkt_generator')->wktBuildPoint(array($lon, $lat));
+    $center = \Drupal::service('geofield.geophp')->load($point);
     return $center;
   }
 
