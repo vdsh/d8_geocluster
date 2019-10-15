@@ -34,7 +34,7 @@ class GeoclusterConfig implements GeoclusterConfigBackendInterface {
     $cluster_field_options = $this->get_cluster_field_options();
     if (count($cluster_field_options) == 1) {
       $more_form['error'] = array(
-        '#markup' => 'Please add at least 1 geofield to the view',
+        '#markup' => t('To enable geocluster, please add at least 1 geofield to the view'),
       );
     }
     else {
@@ -173,18 +173,27 @@ class GeoclusterConfig implements GeoclusterConfigBackendInterface {
 
   function get_cluster_field_options() {
     // find all fields of type 'geofield' associated to that display
-    $handlers = $this->get_display()->handlers['field'];
     $cluster_field_options = array(
       '' => '<none>',
     );
-    foreach ($handlers as $handler) {
-      /* TODO: do better than this, but the field definition is protected */
-      if ($handler->options['type'] == 'geofield_default')
-      {
-        
-        $cluster_field_options[$handler->options['id']] = (!empty($handler->options['label'])) ? $handler->options['label'] : $handler->options['id'];
+    
+    /* @var \Drupal\views\Plugin\views\ViewsHandlerInterface $handler */
+    foreach ($this->get_display()->getHandlers('field') as $field_id => $handler) {
+      $label = $handler->adminLabel() ?: $field_id;
+      $fields[$field_id] = $label;
+      if (is_a($handler, 'Drupal\views\Plugin\views\field\EntityField')) {
+        /* @var \Drupal\views\Plugin\views\field\EntityField $handler */
+        $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($handler->getEntityType());
+        $field_storage_definition = $field_storage_definitions[$handler->definition['field_name']];
+
+        $type = $field_storage_definition->getType();
+        $definition = \Drupal::service('plugin.manager.field.field_type')->getDefinition($type);
+        if (is_a($definition['class'], '\Drupal\geofield\Plugin\Field\FieldType\GeofieldItem', TRUE)) {
+          $cluster_field_options[$field_id] = $label;
+        }
       }
     }
+    
     return $cluster_field_options;
   }
 

@@ -19,6 +19,6 @@
   "minimum-stability": "dev",
   "require": {
     "geofield/geofield": "^1.6",
-    "geophp/geophp": "^1.0",
+    "geophp/geophp": "^1.0"
   }
 }

@@ -23,7 +23,7 @@ function geocluster_field_info_alter(&$info) {
   
    if (isset($info['geofield'])) {
     $info['geofield']['class'] = \Drupal\geocluster\Plugin\Field\FieldType\GeoclusterItem::class;
-   // $info['geofield']['provider'] = 'geocluster';
+    $info['geofield']['provider'] = 'geocluster';
   }
 }
 
@@ -132,4 +132,29 @@ function geocluster_views_post_execute(\Drupal\views\ViewExecutable $view) {
     $algorithm->post_execute();
     $algorithm->after_post_execute();
   };
+  
+  $view->element['#attached']['library'][] = 'geocluster/geocluster.leaflet.bbox';
 }
+
+/**
+ * Add geocluster javascript library when needed
+ *
+ * Implements hook_views_pre_render().
+ */
+ /*
+function geocluster_views_pre_render(\Drupal\views\ViewExecutable $view) {
+  $view->element['#attached']['library'][] = 'geocluster/geocluster.leaflet.bbox';
+}
+*/
+
+/**
+ * Add geocluster javascript library when needed, from the pane (which doesn't trigger the view execution)
+ *
+ * Implements hook_leaflet_geojson_map_pane_render_javascript_library_alter().
+ */
+function geocluster_leaflet_geojson_map_pane_render_javascript_library_alter(&$libraries) {
+  $libraries[] = 'geocluster/geocluster.leaflet.bbox';
+  
+  return $libraries;
+}
+
