@@ -131,21 +131,11 @@ function geocluster_views_post_execute(\Drupal\views\ViewExecutable $view) {
     $algorithm->before_post_execute();
     $algorithm->post_execute();
     $algorithm->after_post_execute();
+    
+    $view->element['#attached']['library'][] = 'geocluster/geocluster.leaflet.bbox';
   };
-  
-  $view->element['#attached']['library'][] = 'geocluster/geocluster.leaflet.bbox';
 }
 
-/**
- * Add geocluster javascript library when needed
- *
- * Implements hook_views_pre_render().
- */
- /*
-function geocluster_views_pre_render(\Drupal\views\ViewExecutable $view) {
-  $view->element['#attached']['library'][] = 'geocluster/geocluster.leaflet.bbox';
-}
-*/
 
 /**
  * Add geocluster javascript library when needed, from the pane (which doesn't trigger the view execution)
